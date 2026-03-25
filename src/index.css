@@ -926,6 +926,11 @@ select {
   color: var(--text-muted);
 }
 
+.xp-today-label.goal-met {
+  color: var(--success);
+  font-weight: 600;
+}
+
 .xp-bar-tracks {
   display: flex;
   gap: 0.5rem;
