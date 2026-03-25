@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSRS } from '../context/SRSContext';
 import { SpeakButton, useSpeech } from '../hooks/useSpeech';
 import { sfxCorrect, sfxWrong, sfxRate, sfxLessonComplete, sfxPerfect } from '../hooks/useSoundEffects';
+import { useGamification } from '../context/GamificationContext';
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -177,6 +178,7 @@ function ReviewCard({ card, allCards, onReview }) {
 
 export default function ReviewPage() {
   const { getDueCards, reviewCard, getStats, cards } = useSRS();
+  const { recordReview } = useGamification();
   const [dueCards, setDueCards] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [sessionStats, setSessionStats] = useState({ reviewed: 0, correct: 0 });
@@ -194,6 +196,7 @@ export default function ReviewPage() {
 
   const handleReview = (cardId, quality) => {
     reviewCard(cardId, quality);
+    recordReview(quality >= 3);
     setSessionStats(prev => ({
       reviewed: prev.reviewed + 1,
       correct: prev.correct + (quality >= 3 ? 1 : 0),

@@ -25,6 +25,7 @@ export default function Navbar() {
         <NavLink to="/kanji">Kanji</NavLink>
         <NavLink to="/grammar">Grammaire</NavLink>
         <NavLink to="/quiz">Quiz</NavLink>
+        <NavLink to="/achievements">Succès</NavLink>
         <NavLink to="/progress">Progrès</NavLink>
       </div>
       <div className="navbar-level">

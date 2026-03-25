@@ -860,6 +860,356 @@ select {
   margin-left: 0.3rem;
 }
 
+/* === XP Bar Widget === */
+.xp-bar-widget {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.5rem 2rem;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+}
+
+.xp-bar-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.xp-level {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.xp-level-number {
+  background: var(--accent);
+  color: white;
+  font-weight: 800;
+  font-size: 0.75rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.xp-level-title {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.xp-streak {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--warning);
+}
+
+.xp-streak-fire {
+  font-size: 1rem;
+}
+
+.xp-today {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.xp-bar-tracks {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.xp-track {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-card-hover);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.xp-track.daily {
+  flex: 0.4;
+}
+
+.xp-track-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.xp-track-fill.level {
+  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+}
+
+.xp-track-fill.daily {
+  background: var(--warning);
+}
+
+.xp-track-fill.daily.complete {
+  background: var(--success);
+}
+
+/* === XP Toast Notifications === */
+.xp-notifications {
+  position: fixed;
+  top: 5rem;
+  right: 1.5rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.xp-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: toast-in 0.3s ease, toast-out 0.3s ease 2.2s forwards;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.xp-toast.xp { border-left: 3px solid var(--accent); }
+.xp-toast.streak { border-left: 3px solid var(--warning); }
+.xp-toast.levelup { border-left: 3px solid var(--success); }
+.xp-toast.achievement { border-left: 3px solid #c084fc; }
+.xp-toast.goal { border-left: 3px solid var(--success); }
+
+.xp-toast-icon { font-size: 1.1rem; }
+.xp-toast-text { color: var(--text); }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(40px); }
+}
+
+/* === Achievements Page === */
+.achievements-page h1 {
+  font-family: var(--font-jp);
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.achievements-page h2 {
+  font-size: 1.1rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.achievement-stats {
+  margin-bottom: 2rem;
+}
+
+.achievement-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.achievement-stat-card.hero {
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-color: var(--accent);
+}
+
+.stat-icon { font-size: 1.3rem; }
+
+.stat-big {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.achievement-stat-card.hero .stat-big {
+  font-size: 3rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.stat-detail {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.stat-xp-bar {
+  width: 100%;
+  max-width: 300px;
+  height: 6px;
+  background: var(--bg-card-hover);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.stat-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.achievement-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+/* Daily goal setting */
+.daily-goal-setting {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.goal-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.goal-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: var(--bg-card-hover);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  transition: all 0.2s;
+}
+
+.goal-btn.active {
+  border-color: var(--accent);
+  background: rgba(232, 64, 87, 0.1);
+}
+
+.goal-btn:hover { border-color: var(--accent); }
+
+.goal-xp { font-weight: 800; font-size: 1.1rem; }
+.goal-label { font-size: 0.75rem; color: var(--text-muted); }
+
+/* XP History chart */
+.xp-history-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.xp-history-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+  height: 120px;
+  padding-top: 1rem;
+}
+
+.xp-history-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.xp-history-bar {
+  width: 100%;
+  max-width: 30px;
+  background: var(--accent);
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 4px;
+  transition: height 0.3s ease;
+}
+
+.xp-history-bar.goal-met {
+  background: var(--success);
+}
+
+.xp-history-value {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: white;
+  margin-top: -14px;
+}
+
+.xp-history-day {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Achievements grid */
+.achievements-section {
+  margin-bottom: 2rem;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.achievement-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1.25rem 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.achievement-card.unlocked {
+  border-color: var(--success);
+  background: rgba(74, 222, 128, 0.05);
+}
+
+.achievement-card.locked {
+  opacity: 0.4;
+}
+
+.achievement-icon { font-size: 2rem; }
+.achievement-title { font-weight: 700; font-size: 0.85rem; }
+.achievement-desc { font-size: 0.7rem; color: var(--text-muted); }
+
 @keyframes pulse-speak {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }

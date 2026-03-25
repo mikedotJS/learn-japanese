@@ -3,6 +3,7 @@ import { vocabulary, jlptLevels, categories } from '../data/vocabulary';
 import { useProgress } from '../context/ProgressContext';
 import { SpeakButton } from '../hooks/useSpeech';
 import { sfxLearned } from '../hooks/useSoundEffects';
+import { useGamification } from '../context/GamificationContext';
 
 const categoryLabels = {
   verb: 'Verbe',
@@ -14,6 +15,7 @@ const categoryLabels = {
 
 export default function VocabularyPage() {
   const { progress, markVocabLearned } = useProgress();
+  const { recordWordLearned } = useGamification();
   const level = progress.settings.currentLevel;
   const [filterCat, setFilterCat] = useState('all');
   const [showLearned, setShowLearned] = useState(true);
@@ -76,6 +78,7 @@ export default function VocabularyPage() {
                       e.stopPropagation();
                       markVocabLearned(v.word);
                       sfxLearned();
+                      recordWordLearned();
                     }}
                   >
                     {isLearned ? '✓ Appris' : 'Marquer comme appris'}

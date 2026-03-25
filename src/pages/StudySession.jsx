@@ -5,6 +5,7 @@ import { useSRS } from '../context/SRSContext';
 import { useProgress } from '../context/ProgressContext';
 import { SpeakButton, useSpeech } from '../hooks/useSpeech';
 import { sfxCorrect, sfxWrong, sfxNext, sfxLessonComplete, sfxPerfect, sfxStreak, sfxUnlock } from '../hooks/useSoundEffects';
+import { useGamification } from '../context/GamificationContext';
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -407,6 +408,7 @@ export default function StudySession() {
   const lesson = getLesson(lessonId);
   const { addCards } = useSRS();
   const { markKanaLearned, markVocabLearned, markKanjiLearned, markGrammarLearned } = useProgress();
+  const { recordLessonComplete, awardXP, XP_REWARDS } = useGamification();
 
   const [step, setStep] = useState(0);
 
@@ -450,6 +452,7 @@ export default function StudySession() {
 
     setStep(STEPS.indexOf('complete'));
     sfxLessonComplete();
+    recordLessonComplete();
   };
 
   const currentStep = STEPS[step];

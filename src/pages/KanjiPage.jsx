@@ -3,9 +3,11 @@ import { kanji } from '../data/kanji';
 import { useProgress } from '../context/ProgressContext';
 import { SpeakButton } from '../hooks/useSpeech';
 import { sfxLearned, sfxTap } from '../hooks/useSoundEffects';
+import { useGamification } from '../context/GamificationContext';
 
 export default function KanjiPage() {
   const { progress, markKanjiLearned } = useProgress();
+  const { recordKanjiLearned } = useGamification();
   const level = progress.settings.currentLevel;
   const [selectedKanji, setSelectedKanji] = useState(null);
 
@@ -73,7 +75,7 @@ export default function KanjiPage() {
 
           <button
             className={`learn-btn ${progress.kanji.learned.includes(selectedKanji.kanji) ? 'learned' : ''}`}
-            onClick={() => { markKanjiLearned(selectedKanji.kanji); sfxLearned(); }}
+            onClick={() => { markKanjiLearned(selectedKanji.kanji); sfxLearned(); recordKanjiLearned(); }}
           >
             {progress.kanji.learned.includes(selectedKanji.kanji) ? '✓ Appris' : 'Marquer comme appris'}
           </button>
