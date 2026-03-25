@@ -1,0 +1,851 @@
+/* === Reset & Base === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0f0f14;
+  --bg-card: #1a1a24;
+  --bg-card-hover: #22223a;
+  --text: #e8e8f0;
+  --text-muted: #8888a0;
+  --accent: #e84057;
+  --accent-light: #ff6b7a;
+  --success: #4ade80;
+  --success-dark: #22c55e;
+  --warning: #fbbf24;
+  --info: #60a5fa;
+  --border: #2a2a3e;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font-jp: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  font: inherit;
+  border: none;
+  outline: none;
+}
+
+select {
+  font: inherit;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1rem;
+}
+
+/* === Navbar === */
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 2rem;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+}
+
+.navbar-brand a {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.navbar-links a {
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.navbar-links a:hover {
+  color: var(--text);
+  background: var(--bg-card-hover);
+}
+
+.navbar-links a.active {
+  color: var(--accent);
+  background: rgba(232, 64, 87, 0.1);
+}
+
+.navbar-level {
+  margin-left: auto;
+}
+
+.navbar-level select {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* === Main Content === */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* === Home === */
+.home-hero {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.home-hero h1 {
+  font-size: 3rem;
+  font-family: var(--font-jp);
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.home-hero p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.home-level {
+  margin-top: 0.5rem;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.home-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.home-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 30px rgba(232, 64, 87, 0.15);
+}
+
+.home-card-icon {
+  font-size: 2.5rem;
+  font-family: var(--font-jp);
+}
+
+.home-card h2 {
+  font-size: 1.2rem;
+}
+
+.home-card p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.home-card-stat {
+  margin-top: auto;
+  font-size: 0.8rem;
+  color: var(--accent-light);
+  font-weight: 600;
+}
+
+/* === Kana Page === */
+.kana-page h1, .vocab-page h1, .kanji-page h1, .grammar-page h1, .quiz-page h1, .progress-page h1 {
+  font-family: var(--font-jp);
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.kana-controls, .vocab-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.toggle-group {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.toggle-group button {
+  padding: 0.5rem 1.2rem;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.toggle-group button.active {
+  background: var(--accent);
+  color: white;
+}
+
+.kana-progress, .vocab-progress {
+  margin-left: auto;
+  color: var(--accent-light);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.kana-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.75rem;
+}
+
+.kana-card {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.kana-card:hover {
+  border-color: var(--accent);
+}
+
+.kana-card.learned {
+  border-color: var(--success);
+  background: rgba(74, 222, 128, 0.05);
+}
+
+.kana-card .kana-card-front,
+.kana-card .kana-card-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s;
+}
+
+.kana-card .kana-card-back {
+  opacity: 0;
+}
+
+.kana-card.flipped .kana-card-front {
+  opacity: 0;
+}
+
+.kana-card.flipped .kana-card-back {
+  opacity: 1;
+}
+
+.kana-char {
+  font-size: 2rem;
+  font-family: var(--font-jp);
+}
+
+.kana-romaji {
+  font-size: 1.2rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* === Vocabulary Page === */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.vocab-list, .grammar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.vocab-card, .grammar-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.vocab-card:hover, .grammar-card:hover {
+  border-color: var(--accent);
+}
+
+.vocab-card.learned, .grammar-card.learned {
+  border-left: 3px solid var(--success);
+}
+
+.vocab-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.vocab-word {
+  display: flex;
+  flex-direction: column;
+}
+
+.vocab-kanji {
+  font-size: 1.3rem;
+  font-family: var(--font-jp);
+  font-weight: 600;
+}
+
+.vocab-reading {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-family: var(--font-jp);
+}
+
+.vocab-meaning {
+  color: var(--info);
+  font-weight: 500;
+}
+
+.vocab-tag {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--bg-card-hover);
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.vocab-tag.verbe { color: var(--accent-light); background: rgba(232, 64, 87, 0.1); }
+.vocab-tag.nom { color: var(--info); background: rgba(96, 165, 250, 0.1); }
+.vocab-tag.adjectif { color: var(--warning); background: rgba(251, 191, 36, 0.1); }
+
+.vocab-card-details, .grammar-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.learn-btn {
+  padding: 0.5rem 1.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.learn-btn:hover {
+  background: var(--accent-light);
+}
+
+.learn-btn.learned {
+  background: var(--success-dark);
+}
+
+/* === Kanji Page === */
+.kanji-stats, .grammar-stats {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.kanji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.kanji-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.kanji-card:hover {
+  border-color: var(--accent);
+}
+
+.kanji-card.learned {
+  border-color: var(--success);
+  background: rgba(74, 222, 128, 0.05);
+}
+
+.kanji-card.selected {
+  border-color: var(--accent);
+  background: rgba(232, 64, 87, 0.1);
+}
+
+.kanji-char {
+  font-size: 2.5rem;
+  font-family: var(--font-jp);
+}
+
+.kanji-meaning-short {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.kanji-detail {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+}
+
+.kanji-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.kanji-detail-char {
+  font-size: 5rem;
+  font-family: var(--font-jp);
+  color: var(--accent);
+}
+
+.kanji-readings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.kanji-readings h3 {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.reading-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-family: var(--font-jp);
+}
+
+.tag.on { background: rgba(232, 64, 87, 0.15); color: var(--accent-light); }
+.tag.kun { background: rgba(96, 165, 250, 0.15); color: var(--info); }
+.tag.empty { background: var(--bg-card-hover); color: var(--text-muted); }
+
+.kanji-examples {
+  margin-bottom: 1.5rem;
+}
+
+.kanji-examples h3 {
+  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.kanji-examples li {
+  font-family: var(--font-jp);
+  padding: 0.25rem 0;
+  list-style: none;
+}
+
+.kanji-examples li::before {
+  content: '・';
+  color: var(--accent);
+}
+
+/* === Grammar Page === */
+.grammar-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.grammar-pattern {
+  font-size: 1.3rem;
+  font-family: var(--font-jp);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.grammar-meaning {
+  color: var(--text-muted);
+}
+
+.learned-badge {
+  margin-left: auto;
+  color: var(--success);
+  font-weight: 700;
+}
+
+.grammar-explanation {
+  color: var(--text);
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+
+.grammar-examples h4 {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.grammar-examples li {
+  font-family: var(--font-jp);
+  padding: 0.25rem 0;
+  list-style: none;
+}
+
+.grammar-examples li::before {
+  content: '→ ';
+  color: var(--accent);
+}
+
+/* === Quiz Page === */
+.quiz-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.quiz-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  transition: all 0.3s;
+}
+
+.quiz-type-btn:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.quiz-type-icon {
+  font-size: 2.5rem;
+  font-family: var(--font-jp);
+}
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.quiz-question {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.quiz-question h2 {
+  font-size: 3rem;
+  font-family: var(--font-jp);
+}
+
+.quiz-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.quiz-option {
+  padding: 1rem;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.quiz-option:hover {
+  border-color: var(--accent);
+}
+
+.quiz-option.correct {
+  border-color: var(--success);
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.quiz-option.wrong {
+  border-color: var(--accent);
+  background: rgba(232, 64, 87, 0.1);
+}
+
+.quiz-next-btn {
+  display: block;
+  margin: 2rem auto 0;
+  padding: 0.75rem 2rem;
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.quiz-next-btn:hover {
+  background: var(--accent-light);
+}
+
+.quiz-result {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.quiz-score-display {
+  margin: 2rem 0;
+}
+
+.quiz-score-number {
+  display: block;
+  font-size: 4rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.quiz-score-detail {
+  color: var(--text-muted);
+}
+
+.quiz-score-message {
+  font-size: 1.3rem;
+  font-family: var(--font-jp);
+  margin-bottom: 2rem;
+}
+
+.quiz-result-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.quiz-result-actions button {
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: all 0.2s;
+}
+
+.quiz-result-actions button:first-child {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.quiz-result-actions button:hover {
+  border-color: var(--accent);
+}
+
+/* === Progress Page === */
+.progress-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.progress-section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
+.progress-bar-container {
+  margin-bottom: 1rem;
+}
+
+.progress-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--bg-card-hover);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.best-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.best-score-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.best-score-value {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.quiz-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quiz-history-item {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.quiz-history-type {
+  font-weight: 600;
+  min-width: 140px;
+}
+
+.quiz-history-score {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.quiz-history-date {
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.empty-message {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.reset-btn {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.reset-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .navbar-links {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .navbar-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .home-hero h1 {
+    font-size: 2rem;
+  }
+
+  .quiz-question h2 {
+    font-size: 2rem;
+  }
+
+  .quiz-options {
+    grid-template-columns: 1fr;
+  }
+
+  .kanji-readings {
+    grid-template-columns: 1fr;
+  }
+
+  .kanji-detail-char {
+    font-size: 3rem;
+  }
+}
