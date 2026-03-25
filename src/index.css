@@ -353,9 +353,11 @@ select {
   margin-left: auto;
 }
 
-.vocab-tag.verbe { color: var(--accent-light); background: rgba(232, 64, 87, 0.1); }
-.vocab-tag.nom { color: var(--info); background: rgba(96, 165, 250, 0.1); }
-.vocab-tag.adjectif { color: var(--warning); background: rgba(251, 191, 36, 0.1); }
+.vocab-tag.verb { color: var(--accent-light); background: rgba(232, 64, 87, 0.1); }
+.vocab-tag.noun { color: var(--info); background: rgba(96, 165, 250, 0.1); }
+.vocab-tag.adjective { color: var(--warning); background: rgba(251, 191, 36, 0.1); }
+.vocab-tag.adverb { color: var(--success); background: rgba(74, 222, 128, 0.1); }
+.vocab-tag.expression { color: #c084fc; background: rgba(192, 132, 252, 0.1); }
 
 .vocab-card-details, .grammar-details {
   margin-top: 1rem;

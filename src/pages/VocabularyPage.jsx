@@ -4,6 +4,14 @@ import { useProgress } from '../context/ProgressContext';
 import { SpeakButton } from '../hooks/useSpeech';
 import { sfxLearned } from '../hooks/useSoundEffects';
 
+const categoryLabels = {
+  verb: 'Verbe',
+  noun: 'Nom',
+  adjective: 'Adjectif',
+  adverb: 'Adverbe',
+  expression: 'Expression',
+};
+
 export default function VocabularyPage() {
   const { progress, markVocabLearned } = useProgress();
   const level = progress.settings.currentLevel;
@@ -29,7 +37,7 @@ export default function VocabularyPage() {
         <select value={filterCat} onChange={e => setFilterCat(e.target.value)}>
           <option value="all">Toutes catégories</option>
           {categories.map(c => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>{categoryLabels[c] || c}</option>
           ))}
         </select>
 
@@ -58,7 +66,7 @@ export default function VocabularyPage() {
                 </div>
                 <SpeakButton text={v.word} />
                 <div className="vocab-meaning">{v.meaning}</div>
-                <span className={`vocab-tag ${v.category}`}>{v.category}</span>
+                <span className={`vocab-tag ${v.category}`}>{categoryLabels[v.category] || v.category}</span>
               </div>
               {isExpanded && (
                 <div className="vocab-card-details">

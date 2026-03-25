@@ -1,3 +1,7 @@
+# Raw data files (fetched by scripts/transform.cjs)
+scripts/*.json
+scripts/*.csv
+
 # Logs
 logs
 *.log
