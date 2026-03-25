@@ -449,11 +449,13 @@ function ContextStep({ sentencesList, dialogue, onNext }) {
 function LessonComplete({ lesson, onGoHome }) {
   return (
     <div className="study-step lesson-complete">
-      <div className="lesson-complete-icon">🎉</div>
-      <h2>Leçon terminée !</h2>
+      <div className="lesson-complete-icon">{lesson.isCheckpoint ? '🏁' : '🎉'}</div>
+      <h2>{lesson.isCheckpoint ? 'Checkpoint réussi !' : 'Leçon terminée !'}</h2>
       <p className="lesson-complete-title">{lesson.title}</p>
       <p className="lesson-complete-summary">
-        {lesson.items.length} éléments ajoutés à vos révisions SRS.
+        {lesson.isCheckpoint
+          ? `${lesson.items.length} éléments révisés avec succès.`
+          : `${lesson.items.length} éléments ajoutés à vos révisions SRS.`}
       </p>
       <div className="step-actions">
         <button className="step-btn primary" onClick={onGoHome}>Retour au parcours</button>
@@ -464,7 +466,8 @@ function LessonComplete({ lesson, onGoHome }) {
 
 // === Main component ===
 
-const STEPS = ['present', 'quiz', 'production', 'context', 'complete'];
+const REGULAR_STEPS = ['present', 'quiz', 'production', 'context', 'complete'];
+const CHECKPOINT_STEPS = ['quiz', 'production', 'complete'];
 
 export default function StudySession() {
   const { lessonId } = useParams();
@@ -474,10 +477,15 @@ export default function StudySession() {
   const { markKanaLearned, markVocabLearned, markKanjiLearned, markGrammarLearned } = useProgress();
   const { recordLessonComplete, awardXP, XP_REWARDS } = useGamification();
 
+  const STEPS = lesson?.isCheckpoint ? CHECKPOINT_STEPS : REGULAR_STEPS;
   const [step, setStep] = useState(0);
 
   // Pool for generating wrong answers in quiz
   const allItemsPool = useMemo(() => {
+    if (lesson?.isCheckpoint) {
+      // For checkpoints, the items themselves are the pool
+      return lesson.items;
+    }
     return curriculum
       .filter(l => l.level === lesson?.level && l.phase === lesson?.phase)
       .flatMap(l => l.items);
@@ -493,16 +501,17 @@ export default function StudySession() {
   }
 
   const finishLesson = () => {
-    // Add all items to SRS
-    addCards(lesson.items);
+    // Checkpoints don't add to SRS (items were already added by individual lessons)
+    if (!lesson.isCheckpoint) {
+      addCards(lesson.items);
 
-    // Mark items as learned in progress context
-    lesson.items.forEach(item => {
-      if (item.type === 'kana') markKanaLearned(item.data.kanaType, item.data.romaji);
-      if (item.type === 'vocabulary') markVocabLearned(item.data.word);
-      if (item.type === 'kanji') markKanjiLearned(item.data.kanji);
-      if (item.type === 'grammar') markGrammarLearned(item.data.pattern);
-    });
+      lesson.items.forEach(item => {
+        if (item.type === 'kana') markKanaLearned(item.data.kanaType, item.data.romaji);
+        if (item.type === 'vocabulary') markVocabLearned(item.data.word);
+        if (item.type === 'kanji') markKanjiLearned(item.data.kanji);
+        if (item.type === 'grammar') markGrammarLearned(item.data.pattern);
+      });
+    }
 
     // Save lesson completion
     const completedKey = 'nihongo-completed-lessons';

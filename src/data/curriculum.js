@@ -170,7 +170,46 @@ function buildCurriculum() {
     }
   }
 
-  return allLessons;
+  // === INSERT CHECKPOINTS every 4 lessons ===
+  const CHECKPOINT_INTERVAL = 4;
+  const withCheckpoints = [];
+  let regularCount = 0;
+
+  for (const lesson of allLessons) {
+    withCheckpoints.push(lesson);
+    regularCount++;
+
+    if (regularCount % CHECKPOINT_INTERVAL === 0) {
+      // Gather items from the last CHECKPOINT_INTERVAL lessons
+      const recentLessons = withCheckpoints
+        .filter(l => !l.isCheckpoint)
+        .slice(-CHECKPOINT_INTERVAL);
+      const allItems = recentLessons.flatMap(l => l.items);
+
+      if (allItems.length >= 4) {
+        lessonNum++;
+        withCheckpoints.push({
+          id: `L${lessonNum}`,
+          number: lessonNum,
+          title: `Checkpoint — Révision`,
+          level: recentLessons[0].level,
+          phase: 'checkpoint',
+          isCheckpoint: true,
+          items: allItems,
+          sentences: [],
+          dialogue: null,
+        });
+      }
+    }
+  }
+
+  // Renumber all lessons
+  withCheckpoints.forEach((l, i) => {
+    l.number = i + 1;
+    l.id = `L${i + 1}`;
+  });
+
+  return withCheckpoints;
 }
 
 export const curriculum = buildCurriculum();

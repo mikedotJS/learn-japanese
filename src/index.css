@@ -1514,6 +1514,22 @@ select {
   border-color: var(--border);
 }
 
+.curriculum-lesson.checkpoint {
+  background: var(--bg-card-hover);
+  border-style: dashed;
+  border-width: 2px;
+}
+
+.curriculum-lesson.checkpoint.completed {
+  border-color: var(--success);
+  border-style: solid;
+}
+
+.curriculum-lesson.checkpoint.next {
+  border-color: var(--warning);
+  background: rgba(251, 191, 36, 0.05);
+}
+
 .lesson-number {
   width: 2rem;
   height: 2rem;
