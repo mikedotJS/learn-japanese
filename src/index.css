@@ -1920,6 +1920,15 @@ select {
   color: var(--accent);
 }
 
+.quiz-result-mini.failed {
+  border-color: var(--accent);
+  background: rgba(232, 64, 87, 0.05);
+}
+
+.quiz-result-mini.failed p {
+  color: var(--accent-light);
+}
+
 /* === Review Page === */
 .review-page {
   max-width: 700px;

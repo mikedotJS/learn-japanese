@@ -115,8 +115,11 @@ function QuizStep({ items, allItemsPool, onNext }) {
   const [answered, setAnswered] = useState(null);
   const [score, setScore] = useState(0);
   const [results, setResults] = useState([]);
+  const [attempt, setAttempt] = useState(0);
 
-  useEffect(() => {
+  const MIN_PASS_RATE = 0.8;
+
+  const generateQuestions = () => {
     const q = items.map(item => {
       const d = item.data;
       let correct, lessonWrong, globalWrong;
@@ -159,21 +162,44 @@ function QuizStep({ items, allItemsPool, onNext }) {
         options: shuffleArray([correct, ...wrong]),
       };
     });
-    setQuestions(shuffleArray(q));
-  }, [items, allItemsPool]);
+    return shuffleArray(q);
+  };
+
+  useEffect(() => {
+    setQuestions(generateQuestions());
+  }, [items, allItemsPool, attempt]);
+
+  const retry = () => {
+    setQuestions(generateQuestions());
+    setCurrentIdx(0);
+    setScore(0);
+    setAnswered(null);
+    setResults([]);
+    setAttempt(a => a + 1);
+    sfxNext();
+  };
 
   if (questions.length === 0) return null;
 
   if (currentIdx >= questions.length) {
+    const passed = score >= Math.ceil(questions.length * MIN_PASS_RATE);
     return (
       <div className="study-step">
-        <div className="quiz-result-mini">
+        <div className={`quiz-result-mini ${passed ? '' : 'failed'}`}>
           <h3>{score}/{questions.length} bonnes réponses</h3>
-          <p>{score === questions.length ? '完璧！' : score >= questions.length * 0.7 ? 'いいね！' : 'もう一度！'}</p>
+          <p>{passed
+            ? (score === questions.length ? '完璧！' : 'いいね！')
+            : 'Il faut au moins 80% pour continuer.'}</p>
         </div>
-        <button className="step-btn primary" onClick={() => onNext(results)}>
-          Continuer →
-        </button>
+        {passed ? (
+          <button className="step-btn primary" onClick={() => onNext(results)}>
+            Continuer →
+          </button>
+        ) : (
+          <button className="step-btn primary" onClick={retry}>
+            Recommencer le quiz →
+          </button>
+        )}
       </div>
     );
   }
@@ -226,6 +252,10 @@ function ProductionStep({ items, onNext }) {
   const [input, setInput] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [results, setResults] = useState([]);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+
+  const MIN_PASS_RATE = 0.8;
 
   const item = items[idx];
   const d = item.data;
@@ -257,13 +287,14 @@ function ProductionStep({ items, onNext }) {
     if (!input.trim()) return;
     setSubmitted(true);
     const wasCorrect = expectedAnswers.some(a => normalize(input) === normalize(a));
-    if (wasCorrect) sfxCorrect(); else sfxWrong();
+    if (wasCorrect) { sfxCorrect(); setScore(s => s + 1); }
+    else { sfxWrong(); }
     setResults(prev => [...prev, { item, correct: wasCorrect }]);
   };
 
   const next = () => {
     if (idx + 1 >= items.length) {
-      onNext(results);
+      setShowResult(true);
       return;
     }
     setIdx(i => i + 1);
@@ -271,6 +302,39 @@ function ProductionStep({ items, onNext }) {
     setSubmitted(false);
     sfxNext();
   };
+
+  const retry = () => {
+    setIdx(0);
+    setInput('');
+    setSubmitted(false);
+    setResults([]);
+    setScore(0);
+    setShowResult(false);
+    sfxNext();
+  };
+
+  if (showResult) {
+    const passed = score >= Math.ceil(items.length * MIN_PASS_RATE);
+    return (
+      <div className="study-step">
+        <div className={`quiz-result-mini ${passed ? '' : 'failed'}`}>
+          <h3>{score}/{items.length} bonnes réponses</h3>
+          <p>{passed
+            ? (score === items.length ? '完璧！' : 'いいね！')
+            : 'Il faut au moins 80% pour continuer.'}</p>
+        </div>
+        {passed ? (
+          <button className="step-btn primary" onClick={() => onNext(results)}>
+            Continuer →
+          </button>
+        ) : (
+          <button className="step-btn primary" onClick={retry}>
+            Recommencer la production →
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="study-step">
