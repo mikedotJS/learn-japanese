@@ -118,23 +118,35 @@ function QuizStep({ items, allItemsPool, onNext }) {
   useEffect(() => {
     const q = items.map(item => {
       const d = item.data;
-      let correct, wrongPool;
+      let correct, lessonWrong, globalWrong;
 
+      // Get answer from the correct item
       if (item.type === 'kana') {
         correct = d.romaji;
-        wrongPool = allItemsPool.filter(x => x.type === 'kana' && x.data.romaji !== d.romaji).map(x => x.data.romaji);
+        // Prioritize distractors from THIS lesson's items
+        lessonWrong = items.filter(x => x.type === 'kana' && x.data.romaji !== d.romaji).map(x => x.data.romaji);
+        globalWrong = allItemsPool.filter(x => x.type === 'kana' && x.data.romaji !== d.romaji).map(x => x.data.romaji);
       } else if (item.type === 'vocabulary') {
         correct = d.meaning;
-        wrongPool = allItemsPool.filter(x => x.type === 'vocabulary' && x.data.word !== d.word).map(x => x.data.meaning);
+        lessonWrong = items.filter(x => x.type === 'vocabulary' && x.data.word !== d.word).map(x => x.data.meaning);
+        globalWrong = allItemsPool.filter(x => x.type === 'vocabulary' && x.data.word !== d.word).map(x => x.data.meaning);
       } else if (item.type === 'kanji') {
         correct = d.meaning;
-        wrongPool = allItemsPool.filter(x => x.type === 'kanji' && x.data.kanji !== d.kanji).map(x => x.data.meaning);
+        lessonWrong = items.filter(x => x.type === 'kanji' && x.data.kanji !== d.kanji).map(x => x.data.meaning);
+        globalWrong = allItemsPool.filter(x => x.type === 'kanji' && x.data.kanji !== d.kanji).map(x => x.data.meaning);
       } else if (item.type === 'grammar') {
         correct = d.meaning;
-        wrongPool = allItemsPool.filter(x => x.type === 'grammar' && x.data.pattern !== d.pattern).map(x => x.data.meaning);
+        lessonWrong = items.filter(x => x.type === 'grammar' && x.data.pattern !== d.pattern).map(x => x.data.meaning);
+        globalWrong = allItemsPool.filter(x => x.type === 'grammar' && x.data.pattern !== d.pattern).map(x => x.data.meaning);
       }
 
-      const wrong = shuffleArray([...new Set(wrongPool)]).slice(0, 3);
+      // Pick distractors: first from lesson, then fill from global pool if needed
+      const uniqueLesson = [...new Set(lessonWrong)];
+      const uniqueGlobal = [...new Set(globalWrong)].filter(w => !uniqueLesson.includes(w));
+      const wrong = shuffleArray(uniqueLesson).slice(0, 3);
+      if (wrong.length < 3) {
+        wrong.push(...shuffleArray(uniqueGlobal).slice(0, 3 - wrong.length));
+      }
       while (wrong.length < 3) wrong.push('—');
 
       return {
