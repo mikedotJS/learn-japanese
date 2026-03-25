@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { hiragana, katakana, kanaGroups } from '../data/kana';
 import { useProgress } from '../context/ProgressContext';
+import { SpeakButton } from '../hooks/useSpeech';
 
 export default function KanaPage() {
   const [type, setType] = useState('hiragana');
@@ -58,6 +59,7 @@ export default function KanaPage() {
               </div>
               <div className="kana-card-back">
                 <span className="kana-romaji">{k.romaji}</span>
+                <SpeakButton text={k.kana} className="speak-btn-small" />
               </div>
             </div>
           );

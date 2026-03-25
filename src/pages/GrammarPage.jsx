@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { grammar } from '../data/grammar';
 import { useProgress } from '../context/ProgressContext';
+import { SpeakButton } from '../hooks/useSpeech';
 
 export default function GrammarPage() {
   const { progress, markGrammarLearned } = useProgress();
@@ -37,7 +38,10 @@ export default function GrammarPage() {
                   <div className="grammar-examples">
                     <h4>Exemples :</h4>
                     <ul>
-                      {g.examples.map((ex, i) => <li key={i}>{ex}</li>)}
+                      {g.examples.map((ex, i) => {
+                        const jpPart = ex.split('(')[0].split('（')[0].trim();
+                        return <li key={i}>{ex} <SpeakButton text={jpPart} className="speak-btn-inline" /></li>;
+                      })}
                     </ul>
                   </div>
                   <button

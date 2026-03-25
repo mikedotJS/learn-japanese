@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useSRS } from '../context/SRSContext';
+import { SpeakButton, useSpeech } from '../hooks/useSpeech';
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -12,11 +13,12 @@ function shuffleArray(arr) {
 }
 
 function ReviewCard({ card, allCards, onReview }) {
-  const [mode, setMode] = useState(null); // null = choose mode, 'recognition', 'production'
+  const [mode, setMode] = useState(null);
   const [answered, setAnswered] = useState(null);
   const [input, setInput] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [options, setOptions] = useState([]);
+  const { speak } = useSpeech();
 
   const d = card.data;
   const type = card.type;
@@ -97,6 +99,10 @@ function ReviewCard({ card, allCards, onReview }) {
     setAnswered(null);
     setInput('');
     setSubmitted(false);
+
+    // Auto-speak the card
+    const text = d.kana || d.word || d.kanji || '';
+    if (text) speak(text, 0.8);
   }, [card]);
 
   return (
@@ -105,6 +111,7 @@ function ReviewCard({ card, allCards, onReview }) {
 
       <div className="review-question">
         <h2>{questionDisplay}</h2>
+        <SpeakButton text={d.kana || d.word || d.kanji || ''} className="speak-btn-large" />
       </div>
 
       {mode === 'recognition' && (

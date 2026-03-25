@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getLesson, curriculum } from '../data/curriculum';
 import { useSRS } from '../context/SRSContext';
 import { useProgress } from '../context/ProgressContext';
+import { SpeakButton, useSpeech } from '../hooks/useSpeech';
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -17,14 +18,24 @@ function shuffleArray(arr) {
 
 function PresentStep({ items, onNext }) {
   const [idx, setIdx] = useState(0);
+  const { speak } = useSpeech();
   const item = items[idx];
+
+  // Auto-speak when card changes
+  useEffect(() => {
+    const d = item.data;
+    const text = d.kana || d.word || d.kanji || '';
+    if (text) speak(text, 0.8);
+  }, [idx, item]);
 
   const renderCard = () => {
     const d = item.data;
+    const speakText = d.kana || d.word || d.kanji || '';
     if (item.type === 'kana') {
       return (
         <div className="present-card">
           <div className="present-main">{d.kana}</div>
+          <SpeakButton text={d.kana} className="speak-btn-large" />
           <div className="present-sub">{d.romaji}</div>
           <div className="present-meta">{d.kanaType} — groupe {d.group}</div>
         </div>
@@ -34,6 +45,7 @@ function PresentStep({ items, onNext }) {
       return (
         <div className="present-card">
           <div className="present-main">{d.word}</div>
+          <SpeakButton text={d.word} className="speak-btn-large" />
           <div className="present-sub">{d.reading}</div>
           <div className="present-meaning">{d.meaning}</div>
           <div className="present-meta">{d.category}</div>
@@ -44,6 +56,7 @@ function PresentStep({ items, onNext }) {
       return (
         <div className="present-card">
           <div className="present-main">{d.kanji}</div>
+          <SpeakButton text={d.kanji} className="speak-btn-large" />
           <div className="present-meaning">{d.meaning}</div>
           <div className="present-readings">
             {d.readings.on.length > 0 && <span className="tag on">{d.readings.on.join(', ')}</span>}
@@ -65,7 +78,10 @@ function PresentStep({ items, onNext }) {
           <div className="present-meaning">{d.meaning}</div>
           <p className="present-explanation">{d.explanation}</p>
           <div className="present-examples">
-            {d.examples.map((ex, i) => <span key={i}>{ex}</span>)}
+            {d.examples.map((ex, i) => {
+              const jpPart = ex.split('(')[0].split('（')[0].trim();
+              return <span key={i}>{ex} <SpeakButton text={jpPart} className="speak-btn-inline" /></span>;
+            })}
           </div>
         </div>
       );
@@ -314,7 +330,7 @@ function ContextStep({ sentencesList, dialogue, onNext }) {
           <h3>Phrases d'exemple</h3>
           {sentencesList.map((s, i) => (
             <div key={s.id} className="context-sentence" onClick={() => setShowTranslation(prev => ({ ...prev, [s.id]: !prev[s.id] }))}>
-              <div className="context-jp">{s.japanese}</div>
+              <div className="context-jp">{s.japanese} <SpeakButton text={s.japanese} className="speak-btn-inline" /></div>
               <div className="context-reading">{s.reading}</div>
               {showTranslation[s.id] && <div className="context-translation">{s.translation}</div>}
               {!showTranslation[s.id] && <div className="context-tap">Cliquez pour voir la traduction</div>}
@@ -331,7 +347,7 @@ function ContextStep({ sentencesList, dialogue, onNext }) {
               <div key={i} className={`dialogue-line ${line.speaker === dialogue.lines[0].speaker ? 'speaker-a' : 'speaker-b'}`}>
                 <span className="dialogue-speaker">{line.speaker}</span>
                 <div className="dialogue-bubble">
-                  <div className="dialogue-jp">{line.japanese}</div>
+                  <div className="dialogue-jp">{line.japanese} <SpeakButton text={line.japanese} className="speak-btn-inline" /></div>
                   <div
                     className="dialogue-translation-toggle"
                     onClick={() => setShowTranslation(prev => ({ ...prev, [`dl-${i}`]: !prev[`dl-${i}`] }))}
