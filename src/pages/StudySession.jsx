@@ -248,6 +248,7 @@ function QuizStep({ items, allItemsPool, onNext }) {
 }
 
 function ProductionStep({ items, onNext }) {
+  const [shuffledItems] = useState(() => shuffleArray(items));
   const [idx, setIdx] = useState(0);
   const [input, setInput] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -257,7 +258,7 @@ function ProductionStep({ items, onNext }) {
 
   const MIN_PASS_RATE = 0.8;
 
-  const item = items[idx];
+  const item = shuffledItems[idx];
   const d = item.data;
 
   let question, expectedAnswers, hint;
@@ -293,7 +294,7 @@ function ProductionStep({ items, onNext }) {
   };
 
   const next = () => {
-    if (idx + 1 >= items.length) {
+    if (idx + 1 >= shuffledItems.length) {
       setShowResult(true);
       return;
     }
@@ -314,13 +315,13 @@ function ProductionStep({ items, onNext }) {
   };
 
   if (showResult) {
-    const passed = score >= Math.ceil(items.length * MIN_PASS_RATE);
+    const passed = score >= Math.ceil(shuffledItems.length * MIN_PASS_RATE);
     return (
       <div className="study-step">
         <div className={`quiz-result-mini ${passed ? '' : 'failed'}`}>
-          <h3>{score}/{items.length} bonnes réponses</h3>
+          <h3>{score}/{shuffledItems.length} bonnes réponses</h3>
           <p>{passed
-            ? (score === items.length ? '完璧！' : 'いいね！')
+            ? (score === shuffledItems.length ? '完璧！' : 'いいね！')
             : 'Il faut au moins 80% pour continuer.'}</p>
         </div>
         {passed ? (
@@ -340,7 +341,7 @@ function ProductionStep({ items, onNext }) {
     <div className="study-step">
       <div className="step-header">
         <span className="step-label">Production</span>
-        <span className="step-counter">{idx + 1}/{items.length}</span>
+        <span className="step-counter">{idx + 1}/{shuffledItems.length}</span>
       </div>
 
       <div className="production-card">
@@ -373,7 +374,7 @@ function ProductionStep({ items, onNext }) {
 
       {submitted && (
         <button className="step-btn primary" onClick={next}>
-          {idx + 1 >= items.length ? 'Continuer →' : 'Suivant →'}
+          {idx + 1 >= shuffledItems.length ? 'Continuer →' : 'Suivant →'}
         </button>
       )}
     </div>
