@@ -5,6 +5,7 @@ import { hiragana, katakana } from '../data/kana';
 import { grammar } from '../data/grammar';
 import { useProgress } from '../context/ProgressContext';
 import { sfxCorrect, sfxWrong, sfxNext, sfxPerfect, sfxLessonComplete } from '../hooks/useSoundEffects';
+import { useGamification } from '../context/GamificationContext';
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -80,6 +81,7 @@ function generateQuestions(type, level) {
 
 export default function QuizPage() {
   const { progress, addQuizResult } = useProgress();
+  const { awardXP, recordPerfectQuiz, XP_REWARDS } = useGamification();
   const level = progress.settings.currentLevel;
 
   const [quizType, setQuizType] = useState(null);
@@ -106,6 +108,7 @@ export default function QuizPage() {
     if (option === questions[currentIdx].correct) {
       setScore(s => s + 1);
       sfxCorrect();
+      awardXP(XP_REWARDS.quizCorrect, 'quiz');
     } else {
       sfxWrong();
     }
@@ -116,7 +119,7 @@ export default function QuizPage() {
       setFinished(true);
       addQuizResult(quizType, score, questions.length, level);
       const pct = Math.round((score / questions.length) * 100);
-      if (pct === 100) sfxPerfect();
+      if (pct === 100) { sfxPerfect(); recordPerfectQuiz(); }
       else sfxLessonComplete();
     } else {
       setCurrentIdx(i => i + 1);
