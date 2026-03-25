@@ -125,17 +125,17 @@ export default function CurriculumPage() {
                   <div key={lesson.id} className="curriculum-lesson-row">
                     <div className={`lesson-connector ${isCompleted ? 'completed' : ''}`} />
                     <div
-                      className={`curriculum-lesson ${isCompleted ? 'completed' : ''} ${isNext ? 'next' : ''} ${isLocked ? 'locked' : ''}`}
+                      className={`curriculum-lesson ${isCompleted ? 'completed' : ''} ${isNext ? 'next' : ''} ${isLocked ? 'locked' : ''} ${lesson.isCheckpoint ? 'checkpoint' : ''}`}
                       onClick={() => {
                         if (!isLocked) navigate(`/study/${lesson.id}`);
                       }}
                     >
                       <span className="lesson-number">
-                        {isCompleted ? '✓' : isLocked ? '🔒' : lesson.number}
+                        {isCompleted ? '✓' : isLocked ? '🔒' : lesson.isCheckpoint ? '🏁' : lesson.number}
                       </span>
                       <div className="lesson-info">
                         <span className="lesson-title">{lesson.title}</span>
-                        <span className="lesson-meta">{lesson.items.length} éléments · {lesson.phase}</span>
+                        <span className="lesson-meta">{lesson.items.length} éléments · {lesson.isCheckpoint ? 'checkpoint' : lesson.phase}</span>
                       </div>
                       {isNext && <span className="lesson-next-badge">Suivante</span>}
                     </div>
