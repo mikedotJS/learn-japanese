@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { hiragana, katakana, kanaGroups } from '../data/kana';
 import { useProgress } from '../context/ProgressContext';
 import { SpeakButton } from '../hooks/useSpeech';
+import { sfxFlip } from '../hooks/useSoundEffects';
 
 export default function KanaPage() {
   const [type, setType] = useState('hiragana');
@@ -16,6 +17,7 @@ export default function KanaPage() {
   const toggleFlip = (romaji) => {
     setFlipped(prev => ({ ...prev, [romaji]: !prev[romaji] }));
     markKanaLearned(type, romaji);
+    sfxFlip();
   };
 
   return (

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useSRS } from '../context/SRSContext';
 import { SpeakButton, useSpeech } from '../hooks/useSpeech';
+import { sfxCorrect, sfxWrong, sfxRate, sfxLessonComplete, sfxPerfect } from '../hooks/useSoundEffects';
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -66,12 +67,15 @@ function ReviewCard({ card, allCards, onReview }) {
   const handleRecognitionAnswer = (option) => {
     if (answered !== null) return;
     setAnswered(option);
+    if (option === correctAnswer) sfxCorrect(); else sfxWrong();
   };
 
   const handleProductionSubmit = (e) => {
     e.preventDefault();
     if (!input.trim() || submitted) return;
     setSubmitted(true);
+    const correct = allCorrectAnswers.some(a => normalize(input) === normalize(a));
+    if (correct) sfxCorrect(); else sfxWrong();
   };
 
   const isProductionCorrect = submitted && allCorrectAnswers.some(a => normalize(input) === normalize(a));
@@ -154,16 +158,16 @@ function ReviewCard({ card, allCards, onReview }) {
         <div className="review-rating">
           <p className="review-rating-label">Comment c'était ?</p>
           <div className="review-rating-buttons">
-            <button className="rating-btn hard" onClick={() => onReview(card.id, 1)}>
+            <button className="rating-btn hard" onClick={() => { sfxRate(); onReview(card.id, 1); }}>
               Pas su
             </button>
-            <button className="rating-btn ok" onClick={() => onReview(card.id, 3)}>
+            <button className="rating-btn ok" onClick={() => { sfxRate(); onReview(card.id, 3); }}>
               Difficile
             </button>
-            <button className="rating-btn good" onClick={() => onReview(card.id, 4)}>
+            <button className="rating-btn good" onClick={() => { sfxRate(); onReview(card.id, 4); }}>
               Bien
             </button>
-            <button className="rating-btn easy" onClick={() => onReview(card.id, 5)}>
+            <button className="rating-btn easy" onClick={() => { sfxRate(); onReview(card.id, 5); }}>
               Facile
             </button>
           </div>
@@ -199,6 +203,7 @@ export default function ReviewPage() {
 
     if (currentIdx + 1 >= dueCards.length) {
       setFinished(true);
+      sfxLessonComplete();
     } else {
       setCurrentIdx(i => i + 1);
     }

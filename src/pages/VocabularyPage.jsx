@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { vocabulary, jlptLevels, categories } from '../data/vocabulary';
 import { useProgress } from '../context/ProgressContext';
 import { SpeakButton } from '../hooks/useSpeech';
+import { sfxLearned } from '../hooks/useSoundEffects';
 
 export default function VocabularyPage() {
   const { progress, markVocabLearned } = useProgress();
@@ -66,6 +67,7 @@ export default function VocabularyPage() {
                     onClick={(e) => {
                       e.stopPropagation();
                       markVocabLearned(v.word);
+                      sfxLearned();
                     }}
                   >
                     {isLearned ? '✓ Appris' : 'Marquer comme appris'}

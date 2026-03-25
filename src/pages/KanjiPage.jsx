@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { kanji } from '../data/kanji';
 import { useProgress } from '../context/ProgressContext';
 import { SpeakButton } from '../hooks/useSpeech';
+import { sfxLearned, sfxTap } from '../hooks/useSoundEffects';
 
 export default function KanjiPage() {
   const { progress, markKanjiLearned } = useProgress();
@@ -23,7 +24,7 @@ export default function KanjiPage() {
             <div
               key={k.kanji}
               className={`kanji-card ${isLearned ? 'learned' : ''} ${selectedKanji?.kanji === k.kanji ? 'selected' : ''}`}
-              onClick={() => setSelectedKanji(selectedKanji?.kanji === k.kanji ? null : k)}
+              onClick={() => { setSelectedKanji(selectedKanji?.kanji === k.kanji ? null : k); sfxTap(); }}
             >
               <span className="kanji-char">{k.kanji}</span>
               <span className="kanji-meaning-short">{k.meaning}</span>
@@ -72,7 +73,7 @@ export default function KanjiPage() {
 
           <button
             className={`learn-btn ${progress.kanji.learned.includes(selectedKanji.kanji) ? 'learned' : ''}`}
-            onClick={() => markKanjiLearned(selectedKanji.kanji)}
+            onClick={() => { markKanjiLearned(selectedKanji.kanji); sfxLearned(); }}
           >
             {progress.kanji.learned.includes(selectedKanji.kanji) ? '✓ Appris' : 'Marquer comme appris'}
           </button>

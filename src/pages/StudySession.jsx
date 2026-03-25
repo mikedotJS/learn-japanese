@@ -4,6 +4,7 @@ import { getLesson, curriculum } from '../data/curriculum';
 import { useSRS } from '../context/SRSContext';
 import { useProgress } from '../context/ProgressContext';
 import { SpeakButton, useSpeech } from '../hooks/useSpeech';
+import { sfxCorrect, sfxWrong, sfxNext, sfxLessonComplete, sfxPerfect, sfxStreak, sfxUnlock } from '../hooks/useSoundEffects';
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -170,13 +171,15 @@ function QuizStep({ items, allItemsPool, onNext }) {
     if (answered !== null) return;
     setAnswered(option);
     const isCorrect = option === current.correct;
-    if (isCorrect) setScore(s => s + 1);
+    if (isCorrect) { setScore(s => s + 1); sfxCorrect(); }
+    else { sfxWrong(); }
     setResults(prev => [...prev, { item: current.item, correct: isCorrect }]);
   };
 
   const next = () => {
     setAnswered(null);
     setCurrentIdx(i => i + 1);
+    sfxNext();
   };
 
   return (
@@ -240,10 +243,9 @@ function ProductionStep({ items, onNext }) {
     e.preventDefault();
     if (!input.trim()) return;
     setSubmitted(true);
-    setResults(prev => [...prev, {
-      item,
-      correct: expectedAnswers.some(a => normalize(input) === normalize(a)),
-    }]);
+    const wasCorrect = expectedAnswers.some(a => normalize(input) === normalize(a));
+    if (wasCorrect) sfxCorrect(); else sfxWrong();
+    setResults(prev => [...prev, { item, correct: wasCorrect }]);
   };
 
   const next = () => {
@@ -254,6 +256,7 @@ function ProductionStep({ items, onNext }) {
     setIdx(i => i + 1);
     setInput('');
     setSubmitted(false);
+    sfxNext();
   };
 
   return (
@@ -434,6 +437,7 @@ export default function StudySession() {
     } catch { /* ignore */ }
 
     setStep(STEPS.indexOf('complete'));
+    sfxLessonComplete();
   };
 
   const currentStep = STEPS[step];
