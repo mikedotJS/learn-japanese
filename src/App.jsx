@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { ProgressProvider } from './context/ProgressContext';
 import { SRSProvider } from './context/SRSContext';
 import Navbar from './components/Navbar';
@@ -17,7 +17,7 @@ export default function App() {
   return (
     <ProgressProvider>
       <SRSProvider>
-        <BrowserRouter>
+        <HashRouter>
           <div className="app">
             <Navbar />
             <main className="main-content">
@@ -35,7 +35,7 @@ export default function App() {
               </Routes>
             </main>
           </div>
-        </BrowserRouter>
+        </HashRouter>
       </SRSProvider>
     </ProgressProvider>
   );
