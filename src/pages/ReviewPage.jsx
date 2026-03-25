@@ -104,9 +104,7 @@ function ReviewCard({ card, allCards, onReview }) {
     setInput('');
     setSubmitted(false);
 
-    // Auto-speak the card
-    const text = d.kana || d.word || d.kanji || '';
-    if (text) speak(text, 0.8);
+    // Only auto-speak in production mode (recognition = it would spoil the answer)
   }, [card]);
 
   return (
@@ -115,7 +113,7 @@ function ReviewCard({ card, allCards, onReview }) {
 
       <div className="review-question">
         <h2>{questionDisplay}</h2>
-        <SpeakButton text={d.kana || d.word || d.kanji || ''} className="speak-btn-large" />
+        {showResult && <SpeakButton text={d.kana || d.word || d.kanji || ''} className="speak-btn-large" />}
       </div>
 
       {mode === 'recognition' && (
