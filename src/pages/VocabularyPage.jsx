@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { vocabulary, jlptLevels, categories } from '../data/vocabulary';
 import { useProgress } from '../context/ProgressContext';
+import { SpeakButton } from '../hooks/useSpeech';
 
 export default function VocabularyPage() {
   const { progress, markVocabLearned } = useProgress();
@@ -54,6 +55,7 @@ export default function VocabularyPage() {
                   <span className="vocab-kanji">{v.word}</span>
                   <span className="vocab-reading">{v.reading}</span>
                 </div>
+                <SpeakButton text={v.word} />
                 <div className="vocab-meaning">{v.meaning}</div>
                 <span className={`vocab-tag ${v.category}`}>{v.category}</span>
               </div>

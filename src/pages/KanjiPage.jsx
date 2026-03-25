@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { kanji } from '../data/kanji';
 import { useProgress } from '../context/ProgressContext';
+import { SpeakButton } from '../hooks/useSpeech';
 
 export default function KanjiPage() {
   const { progress, markKanjiLearned } = useProgress();
@@ -39,6 +40,7 @@ export default function KanjiPage() {
               <h2>{selectedKanji.meaning}</h2>
               <p>{selectedKanji.strokes} traits</p>
             </div>
+            <SpeakButton text={selectedKanji.kanji} className="speak-btn-large" />
           </div>
 
           <div className="kanji-readings">
@@ -61,7 +63,10 @@ export default function KanjiPage() {
           <div className="kanji-examples">
             <h3>Exemples</h3>
             <ul>
-              {selectedKanji.examples.map(ex => <li key={ex}>{ex}</li>)}
+              {selectedKanji.examples.map(ex => {
+                const word = ex.split('（')[0];
+                return <li key={ex}>{ex} <SpeakButton text={word} className="speak-btn-inline" /></li>;
+              })}
             </ul>
           </div>
 
