@@ -3,6 +3,7 @@ import { useGamification } from '../context/GamificationContext';
 export default function XPBar() {
   const { levelInfo, levelTitle, currentStreak, todayXP, dailyGoal } = useGamification();
   const goalPercent = Math.min(100, Math.round((todayXP / dailyGoal) * 100));
+  const goalMet = todayXP >= dailyGoal;
 
   return (
     <div className="xp-bar-widget">
@@ -18,7 +19,11 @@ export default function XPBar() {
           </div>
         )}
         <div className="xp-today">
-          <span className="xp-today-label">{todayXP}/{dailyGoal} XP</span>
+          {goalMet ? (
+            <span className="xp-today-label goal-met">✓ {todayXP} XP aujourd'hui</span>
+          ) : (
+            <span className="xp-today-label">{todayXP}/{dailyGoal} XP</span>
+          )}
         </div>
       </div>
 
@@ -29,7 +34,7 @@ export default function XPBar() {
         </div>
         {/* Daily goal progress */}
         <div className="xp-track daily">
-          <div className={`xp-track-fill daily ${goalPercent >= 100 ? 'complete' : ''}`} style={{ width: `${goalPercent}%` }} />
+          <div className={`xp-track-fill daily ${goalMet ? 'complete' : ''}`} style={{ width: `${goalPercent}%` }} />
         </div>
       </div>
     </div>
