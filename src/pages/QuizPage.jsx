@@ -4,6 +4,7 @@ import { kanji } from '../data/kanji';
 import { hiragana, katakana } from '../data/kana';
 import { grammar } from '../data/grammar';
 import { useProgress } from '../context/ProgressContext';
+import { sfxCorrect, sfxWrong, sfxNext, sfxPerfect, sfxLessonComplete } from '../hooks/useSoundEffects';
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -104,17 +105,23 @@ export default function QuizPage() {
     setAnswered(option);
     if (option === questions[currentIdx].correct) {
       setScore(s => s + 1);
+      sfxCorrect();
+    } else {
+      sfxWrong();
     }
   };
 
   const nextQuestion = () => {
     if (currentIdx + 1 >= questions.length) {
-      const finalScore = answered === questions[currentIdx].correct ? score : score;
       setFinished(true);
       addQuizResult(quizType, score, questions.length, level);
+      const pct = Math.round((score / questions.length) * 100);
+      if (pct === 100) sfxPerfect();
+      else sfxLessonComplete();
     } else {
       setCurrentIdx(i => i + 1);
       setAnswered(null);
+      sfxNext();
     }
   };
 

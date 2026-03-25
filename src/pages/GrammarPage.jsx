@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { grammar } from '../data/grammar';
 import { useProgress } from '../context/ProgressContext';
 import { SpeakButton } from '../hooks/useSpeech';
+import { sfxLearned } from '../hooks/useSoundEffects';
 
 export default function GrammarPage() {
   const { progress, markGrammarLearned } = useProgress();
@@ -49,6 +50,7 @@ export default function GrammarPage() {
                     onClick={(e) => {
                       e.stopPropagation();
                       markGrammarLearned(g.pattern);
+                      sfxLearned();
                     }}
                   >
                     {isLearned ? '✓ Appris' : 'Marquer comme appris'}
