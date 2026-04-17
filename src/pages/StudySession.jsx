@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getLesson, curriculum } from '../data/curriculum';
 import { useSRS } from '../context/SRSContext';
@@ -29,6 +29,22 @@ function PresentStep({ items, onNext }) {
     const text = d.kana || d.word || d.kanji || '';
     if (text) speak(text, 0.8);
   }, [idx, item]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA') return;
+      if (e.key === 'Enter' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (idx < items.length - 1) setIdx((i) => i + 1);
+        else onNext();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (idx > 0) setIdx((i) => i - 1);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [idx, items.length, onNext]);
 
   const renderCard = () => {
     const d = item.data;
@@ -192,11 +208,11 @@ function QuizStep({ items, allItemsPool, onNext }) {
             : 'Il faut au moins 80% pour continuer.'}</p>
         </div>
         {passed ? (
-          <button className="step-btn primary" onClick={() => onNext(results)}>
+          <button className="step-btn primary" autoFocus onClick={() => onNext(results)}>
             Continuer →
           </button>
         ) : (
-          <button className="step-btn primary" onClick={retry}>
+          <button className="step-btn primary" autoFocus onClick={retry}>
             Recommencer le quiz →
           </button>
         )}
@@ -213,6 +229,11 @@ function QuizStep({ items, allItemsPool, onNext }) {
     if (isCorrect) { setScore(s => s + 1); sfxCorrect(); }
     else { sfxWrong(); }
     setResults(prev => [...prev, { item: current.item, correct: isCorrect }]);
+    // Drop focus so the next Enter keypress is handled by the step shortcut,
+    // not a re-click of the just-pressed option button.
+    if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   };
 
   const next = () => {
@@ -220,6 +241,28 @@ function QuizStep({ items, allItemsPool, onNext }) {
     setCurrentIdx(i => i + 1);
     sfxNext();
   };
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA') return;
+      if (!current) return;
+      if (answered !== null && e.key === 'Enter') {
+        e.preventDefault();
+        next();
+        return;
+      }
+      if (answered === null && /^[1-4]$/.test(e.key)) {
+        const optionIdx = parseInt(e.key, 10) - 1;
+        const opt = current.options[optionIdx];
+        if (opt !== undefined) {
+          e.preventDefault();
+          handleAnswer(opt);
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [answered, current]);
 
   return (
     <div className="study-step">
@@ -255,6 +298,12 @@ function ProductionStep({ items, onNext }) {
   const [results, setResults] = useState([]);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
+  const inputRef = useRef(null);
+
+  // Refocus the input on each new question; autoFocus only fires on mount.
+  useEffect(() => {
+    if (!submitted) inputRef.current?.focus();
+  }, [idx, submitted]);
 
   const MIN_PASS_RATE = 0.8;
 
@@ -284,8 +333,8 @@ function ProductionStep({ items, onNext }) {
   const isCorrect = submitted && expectedAnswers.some(a => normalize(input) === normalize(a));
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+    if (e) e.preventDefault();
+    if (submitted || !input.trim()) return;
     setSubmitted(true);
     const wasCorrect = expectedAnswers.some(a => normalize(input) === normalize(a));
     if (wasCorrect) { sfxCorrect(); setScore(s => s + 1); }
@@ -302,6 +351,13 @@ function ProductionStep({ items, onNext }) {
     setInput('');
     setSubmitted(false);
     sfxNext();
+  };
+
+  const handleInputKeyDown = (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    if (submitted) next();
+    else handleSubmit();
   };
 
   const retry = () => {
@@ -325,11 +381,11 @@ function ProductionStep({ items, onNext }) {
             : 'Il faut au moins 80% pour continuer.'}</p>
         </div>
         {passed ? (
-          <button className="step-btn primary" onClick={() => onNext(results)}>
+          <button className="step-btn primary" autoFocus onClick={() => onNext(results)}>
             Continuer →
           </button>
         ) : (
-          <button className="step-btn primary" onClick={retry}>
+          <button className="step-btn primary" autoFocus onClick={retry}>
             Recommencer la production →
           </button>
         )}
@@ -350,11 +406,13 @@ function ProductionStep({ items, onNext }) {
 
         <form onSubmit={handleSubmit}>
           <input
+            ref={inputRef}
             className={`production-input ${submitted ? (isCorrect ? 'correct' : 'wrong') : ''}`}
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
-            disabled={submitted}
+            onKeyDown={handleInputKeyDown}
+            readOnly={submitted}
             autoFocus
             placeholder="Votre réponse..."
           />
@@ -387,6 +445,18 @@ function ContextStep({ sentencesList, dialogue, onNext }) {
 
   const hasSentences = sentencesList && sentencesList.length > 0;
   const hasDialogue = dialogue !== null;
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA') return;
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onNext();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onNext]);
 
   if (!hasSentences && !hasDialogue) {
     return (
@@ -448,6 +518,17 @@ function ContextStep({ sentencesList, dialogue, onNext }) {
 }
 
 function LessonComplete({ lesson, onGoHome }) {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onGoHome();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onGoHome]);
+
   return (
     <div className="study-step lesson-complete">
       <div className="lesson-complete-icon">{lesson.isCheckpoint ? '🏁' : '🎉'}</div>
