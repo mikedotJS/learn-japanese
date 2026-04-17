@@ -66,20 +66,17 @@ export async function mockBasedHappyPath(page) {
     }
 
     if (path === '/api/user_data' && method === 'POST') {
+      // Insert (server-generated id). Not used by usePersistedState but kept
+      // so the mock stays a faithful REST store.
       const body = JSON.parse(req.postData() || '{}');
-      if (rows.has(body.id)) {
-        return route.fulfill({
-          status: 409,
-          contentType: 'application/json',
-          body: JSON.stringify({ error: { code: 'CONFLICT', message: 'row exists' } }),
-        });
-      }
-      rows.set(body.id, body);
-      writes.push({ op: 'create', id: body.id, data: body.data });
+      const id = body.id ?? `auto-${rows.size + 1}`;
+      const stored = { ...body, id };
+      rows.set(id, stored);
+      writes.push({ op: 'insert', id, data: body.data });
       return route.fulfill({
-        status: 200,
+        status: 201,
         contentType: 'application/json',
-        body: JSON.stringify({ data: body }),
+        body: JSON.stringify({ data: stored }),
       });
     }
 
@@ -101,19 +98,16 @@ export async function mockBasedHappyPath(page) {
         });
       }
       if (method === 'PUT') {
-        if (!rows.has(id)) {
-          return route.fulfill({
-            status: 404,
-            contentType: 'application/json',
-            body: JSON.stringify({ error: { code: 'NOT_FOUND', message: 'no row to update' } }),
-          });
-        }
+        // Upsert per RFC 7231 § 4.3.4: 201 on create, 200 on update.
         const body = JSON.parse(req.postData() || '{}');
-        const merged = { ...rows.get(id), ...body, id };
+        const existed = rows.has(id);
+        const merged = existed
+          ? { ...rows.get(id), ...body, id }
+          : { ...body, id };
         rows.set(id, merged);
-        writes.push({ op: 'update', id, data: body.data });
+        writes.push({ op: existed ? 'update' : 'create', id, data: body.data });
         return route.fulfill({
-          status: 200,
+          status: existed ? 200 : 201,
           contentType: 'application/json',
           body: JSON.stringify({ data: merged }),
         });

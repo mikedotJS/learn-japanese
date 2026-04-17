@@ -7,14 +7,10 @@ function rowIdFor(userId, storageKey) {
 }
 
 /**
- * Drop-in replacement for useState that persists to localStorage
- * and syncs to Based when authenticated.
- *
- * Sync model: on hydration we check whether the server row exists. The first
- * write for a new user must be a CREATE (POST) because UPDATE (PUT) against a
- * missing row 404s. After the first successful create we flip to update. If a
- * write fails we retry once with the opposite operation — covers the race
- * where a second device created the row in between our hydration and write.
+ * Drop-in replacement for useState that persists to localStorage and syncs to
+ * Based when authenticated. Uses the upsert operation (PUT with RFC 7231
+ * upsert semantics) so the first save lands regardless of whether the row
+ * already exists on the server.
  */
 export function usePersistedState(storageKey, defaultValue) {
   const { user } = useAuth();
@@ -35,15 +31,13 @@ export function usePersistedState(storageKey, defaultValue) {
 
   const { data: row, isLoading: isFetching } = useRecord('user_data', rowId);
   const hydrated = useRef(false);
-  const rowExists = useRef(null); // null = unknown, true/false once hydrated
   const lastRowIdRef = useRef(rowId);
 
-  // Reset sync state when the signed-in user changes so the next render
+  // Reset hydration when the signed-in user changes so the next render
   // re-hydrates against the new user's row.
   if (lastRowIdRef.current !== rowId) {
     lastRowIdRef.current = rowId;
     hydrated.current = false;
-    rowExists.current = null;
   }
 
   useEffect(() => {
@@ -58,9 +52,6 @@ export function usePersistedState(storageKey, defaultValue) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setStateRaw(merged);
       } catch { /* corrupt row — will overwrite on next save */ }
-      rowExists.current = true;
-    } else {
-      rowExists.current = false;
     }
     hydrated.current = true;
   }, [isFetching, row, rowId, defaultValue]);
@@ -75,40 +66,22 @@ export function usePersistedState(storageKey, defaultValue) {
     });
   }, [storageKey]);
 
-  const { mutate: updateRow } = useMutation('user_data', 'update');
-  const { mutate: createRow } = useMutation('user_data', 'create');
+  const { mutate: upsertRow } = useMutation('user_data', 'upsert');
   const debounceRef = useRef(null);
 
   useEffect(() => {
     if (!user || !hydrated.current) return;
     clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(async () => {
-      const payload = {
+    debounceRef.current = setTimeout(() => {
+      upsertRow({
         id: rowId,
         userId: user.id,
         key: storageKey,
         data: JSON.stringify(state),
-      };
-      try {
-        if (rowExists.current) {
-          await updateRow(payload);
-        } else {
-          await createRow(payload);
-          rowExists.current = true;
-        }
-      } catch {
-        try {
-          if (rowExists.current) {
-            await createRow(payload);
-          } else {
-            await updateRow(payload);
-            rowExists.current = true;
-          }
-        } catch { /* localStorage still has it — retry on next write */ }
-      }
+      }).catch(() => { /* localStorage still has it — retry on next write */ });
     }, 500);
     return () => clearTimeout(debounceRef.current);
-  }, [state, user, storageKey, rowId, updateRow, createRow]);
+  }, [state, user, storageKey, rowId, upsertRow]);
 
   return [state, setState];
 }
