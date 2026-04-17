@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useCallback } from 'react';
+import { usePersistedState } from '../hooks/usePersistedState';
 
 const SRSContext = createContext();
 const SRS_STORAGE_KEY = 'nihongo-srs';
@@ -61,18 +62,7 @@ function isDue(card) {
 }
 
 export function SRSProvider({ children }) {
-  const [cards, setCards] = useState(() => {
-    try {
-      const saved = localStorage.getItem(SRS_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  useEffect(() => {
-    localStorage.setItem(SRS_STORAGE_KEY, JSON.stringify(cards));
-  }, [cards]);
+  const [cards, setCards] = usePersistedState(SRS_STORAGE_KEY, []);
 
   const addCard = useCallback((id, type, data) => {
     setCards(prev => {

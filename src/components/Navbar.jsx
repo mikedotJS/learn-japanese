@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useProgress } from '../context/ProgressContext';
 import { useSRS } from '../context/SRSContext';
 
 export default function Navbar() {
   const { progress, setCurrentLevel } = useProgress();
   const { getStats } = useSRS();
+  const { signOut } = useAuth();
   const stats = getStats();
 
   return (
@@ -39,6 +41,9 @@ export default function Navbar() {
           <option value="N2">N2</option>
           <option value="N1">N1</option>
         </select>
+        <button className="nav-signout" onClick={() => signOut()}>
+          Déconnexion
+        </button>
       </div>
     </nav>
   );

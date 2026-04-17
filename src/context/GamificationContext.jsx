@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { usePersistedState } from '../hooks/usePersistedState';
 
 const GamificationContext = createContext();
 const STORAGE_KEY = 'nihongo-gamification';
@@ -100,29 +101,17 @@ const defaultState = {
 };
 
 export function GamificationProvider({ children }) {
-  const [state, setState] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      const parsed = saved ? { ...defaultState, ...JSON.parse(saved) } : defaultState;
+  const [state, setState] = usePersistedState(STORAGE_KEY, defaultState);
 
-      // Reset today XP if it's a new day
-      if (parsed.todayDate !== getToday()) {
-        parsed.todayXP = 0;
-        parsed.todayDate = getToday();
-      }
-
-      return parsed;
-    } catch {
-      return defaultState;
+  // Reset today XP if it's a new day
+  useEffect(() => {
+    if (state.todayDate !== getToday()) {
+      setState(prev => ({ ...prev, todayXP: 0, todayDate: getToday() }));
     }
-  });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // XP notification queue
   const [notifications, setNotifications] = useState([]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
 
   // Auto-dismiss notifications
   useEffect(() => {

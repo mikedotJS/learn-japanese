@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nihongo-v1';
+const CACHE_NAME = 'nihongo-v2';
 
 // Install: cache the app shell
 self.addEventListener('install', (event) => {

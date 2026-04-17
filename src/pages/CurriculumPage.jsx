@@ -1,34 +1,14 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { curriculum, getLessonsByLevel } from '../data/curriculum';
 import { useProgress } from '../context/ProgressContext';
 import { useSRS } from '../context/SRSContext';
 
-function getCompletedLessons() {
-  try {
-    return JSON.parse(localStorage.getItem('nihongo-completed-lessons') || '[]');
-  } catch {
-    return [];
-  }
-}
-
 export default function CurriculumPage() {
   const { progress } = useProgress();
   const { getStats, getDueCards } = useSRS();
   const navigate = useNavigate();
-  const [completedLessons, setCompletedLessons] = useState(getCompletedLessons);
-
-  // Re-read on focus
-  useEffect(() => {
-    const handler = () => setCompletedLessons(getCompletedLessons());
-    window.addEventListener('focus', handler);
-    return () => window.removeEventListener('focus', handler);
-  }, []);
-
-  // Also refresh when navigating back
-  useEffect(() => {
-    setCompletedLessons(getCompletedLessons());
-  }, []);
+  const completedLessons = progress.completedLessons;
 
   const stats = getStats();
   const dueCards = getDueCards();

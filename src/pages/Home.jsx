@@ -1,23 +1,14 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useProgress } from '../context/ProgressContext';
 import { useSRS } from '../context/SRSContext';
 import { curriculum } from '../data/curriculum';
-
-function getCompletedLessons() {
-  try {
-    return JSON.parse(localStorage.getItem('nihongo-completed-lessons') || '[]');
-  } catch {
-    return [];
-  }
-}
 
 export default function Home() {
   const { progress } = useProgress();
   const { getStats, getDueCards } = useSRS();
   const stats = getStats();
   const dueCards = getDueCards();
-  const [completed] = useState(getCompletedLessons);
+  const completed = progress.completedLessons;
 
   const nextLesson = curriculum.find(l => !completed.includes(l.id));
   const completedPct = Math.round((completed.length / curriculum.length) * 100);

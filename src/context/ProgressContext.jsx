@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useRef } from 'react';
+import { usePersistedState } from '../hooks/usePersistedState';
 
 const ProgressContext = createContext();
 
@@ -11,21 +12,31 @@ const defaultProgress = {
   grammar: { learned: [], reviewed: [] },
   quiz: { history: [], bestScores: {} },
   settings: { currentLevel: 'N5' },
+  completedLessons: [],
 };
 
 export function ProgressProvider({ children }) {
-  const [progress, setProgress] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? { ...defaultProgress, ...JSON.parse(saved) } : defaultProgress;
-    } catch {
-      return defaultProgress;
-    }
-  });
+  const [progress, setProgress] = usePersistedState(STORAGE_KEY, defaultProgress);
 
+  // One-time migration from old localStorage key
+  const migrated = useRef(false);
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  }, [progress]);
+    if (migrated.current) return;
+    migrated.current = true;
+    try {
+      const old = localStorage.getItem('nihongo-completed-lessons');
+      if (!old) return;
+      const lessons = JSON.parse(old);
+      if (Array.isArray(lessons) && lessons.length > 0) {
+        setProgress(prev => {
+          const merged = [...new Set([...prev.completedLessons, ...lessons])];
+          if (merged.length === prev.completedLessons.length) return prev;
+          return { ...prev, completedLessons: merged };
+        });
+        localStorage.removeItem('nihongo-completed-lessons');
+      }
+    } catch { /* ignore */ }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const markKanaLearned = (type, romaji) => {
     setProgress(prev => {
@@ -76,6 +87,13 @@ export function ProgressProvider({ children }) {
     setProgress(prev => ({ ...prev, settings: { ...prev.settings, currentLevel: level } }));
   };
 
+  const markLessonCompleted = (lessonId) => {
+    setProgress(prev => {
+      if (prev.completedLessons.includes(lessonId)) return prev;
+      return { ...prev, completedLessons: [...prev.completedLessons, lessonId] };
+    });
+  };
+
   const resetProgress = () => {
     setProgress(defaultProgress);
   };
@@ -87,6 +105,7 @@ export function ProgressProvider({ children }) {
       markVocabLearned,
       markKanjiLearned,
       markGrammarLearned,
+      markLessonCompleted,
       addQuizResult,
       setCurrentLevel,
       resetProgress,

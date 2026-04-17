@@ -475,7 +475,7 @@ export default function StudySession() {
   const navigate = useNavigate();
   const lesson = getLesson(lessonId);
   const { addCards } = useSRS();
-  const { markKanaLearned, markVocabLearned, markKanjiLearned, markGrammarLearned } = useProgress();
+  const { markKanaLearned, markVocabLearned, markKanjiLearned, markGrammarLearned, markLessonCompleted } = useProgress();
   const { recordLessonComplete, awardXP, XP_REWARDS } = useGamification();
 
   const STEPS = lesson?.isCheckpoint ? CHECKPOINT_STEPS : REGULAR_STEPS;
@@ -515,14 +515,7 @@ export default function StudySession() {
     }
 
     // Save lesson completion
-    const completedKey = 'nihongo-completed-lessons';
-    try {
-      const completed = JSON.parse(localStorage.getItem(completedKey) || '[]');
-      if (!completed.includes(lesson.id)) {
-        completed.push(lesson.id);
-        localStorage.setItem(completedKey, JSON.stringify(completed));
-      }
-    } catch { /* ignore */ }
+    markLessonCompleted(lesson.id);
 
     setStep(STEPS.indexOf('complete'));
     sfxLessonComplete();
