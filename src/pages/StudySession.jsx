@@ -185,6 +185,29 @@ function QuizStep({ items, allItemsPool, onNext }) {
     setQuestions(generateQuestions());
   }, [items, allItemsPool, attempt]);
 
+  const current = questions[currentIdx];
+  const isResultsScreen = questions.length > 0 && currentIdx >= questions.length;
+
+  const handleAnswer = (option) => {
+    if (answered !== null || !current) return;
+    setAnswered(option);
+    const isCorrect = option === current.correct;
+    if (isCorrect) { setScore(s => s + 1); sfxCorrect(); }
+    else { sfxWrong(); }
+    setResults(prev => [...prev, { item: current.item, correct: isCorrect }]);
+    // Drop focus so the next Enter keypress is handled by the step shortcut,
+    // not a re-click of the just-pressed option button.
+    if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
+
+  const next = () => {
+    setAnswered(null);
+    setCurrentIdx(i => i + 1);
+    sfxNext();
+  };
+
   const retry = () => {
     setQuestions(generateQuestions());
     setCurrentIdx(0);
@@ -195,9 +218,31 @@ function QuizStep({ items, allItemsPool, onNext }) {
     sfxNext();
   };
 
+  useEffect(() => {
+    if (!current) return;
+    const onKey = (e) => {
+      if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA') return;
+      if (answered !== null && e.key === 'Enter') {
+        e.preventDefault();
+        next();
+        return;
+      }
+      if (answered === null && /^[1-4]$/.test(e.key)) {
+        const optionIdx = parseInt(e.key, 10) - 1;
+        const opt = current.options[optionIdx];
+        if (opt !== undefined) {
+          e.preventDefault();
+          handleAnswer(opt);
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [answered, current]);
+
   if (questions.length === 0) return null;
 
-  if (currentIdx >= questions.length) {
+  if (isResultsScreen) {
     const passed = score >= Math.ceil(questions.length * MIN_PASS_RATE);
     return (
       <div className="study-step">
@@ -219,50 +264,6 @@ function QuizStep({ items, allItemsPool, onNext }) {
       </div>
     );
   }
-
-  const current = questions[currentIdx];
-
-  const handleAnswer = (option) => {
-    if (answered !== null) return;
-    setAnswered(option);
-    const isCorrect = option === current.correct;
-    if (isCorrect) { setScore(s => s + 1); sfxCorrect(); }
-    else { sfxWrong(); }
-    setResults(prev => [...prev, { item: current.item, correct: isCorrect }]);
-    // Drop focus so the next Enter keypress is handled by the step shortcut,
-    // not a re-click of the just-pressed option button.
-    if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-  };
-
-  const next = () => {
-    setAnswered(null);
-    setCurrentIdx(i => i + 1);
-    sfxNext();
-  };
-
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA') return;
-      if (!current) return;
-      if (answered !== null && e.key === 'Enter') {
-        e.preventDefault();
-        next();
-        return;
-      }
-      if (answered === null && /^[1-4]$/.test(e.key)) {
-        const optionIdx = parseInt(e.key, 10) - 1;
-        const opt = current.options[optionIdx];
-        if (opt !== undefined) {
-          e.preventDefault();
-          handleAnswer(opt);
-        }
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [answered, current]);
 
   return (
     <div className="study-step">
