@@ -10,11 +10,15 @@ const FAKE_USER = { id: 'user-test-1', email: 'e2e@example.com' };
 const FAKE_TOKENS = { accessToken: 'access-token-xyz', refreshToken: 'refresh-token-xyz' };
 
 /**
- * Install the default "happy path" mock: signin/signup succeed, /auth/me returns
- * the fake user when an Authorization header is present, user_data GETs are 404
- * (no server-side state), PUTs succeed.
+ * Install the default "happy path" mock: auth endpoints succeed, and
+ * /api/user_data/:id behaves like a real REST store — GET 404s until a POST
+ * creates a row, PUT 404s until the row exists. Rows live in-memory on the
+ * mock and are returned to callers (and to the test via getMockRows).
  */
 export async function mockBasedHappyPath(page) {
+  const rows = new Map();
+  const writes = [];
+
   await page.route(`${BASED_URL}/**`, async (route) => {
     const req = route.request();
     const url = new URL(req.url());
@@ -61,19 +65,57 @@ export async function mockBasedHappyPath(page) {
       });
     }
 
-    if (path.startsWith('/api/user_data/')) {
-      if (method === 'GET') {
+    if (path === '/api/user_data' && method === 'POST') {
+      const body = JSON.parse(req.postData() || '{}');
+      if (rows.has(body.id)) {
         return route.fulfill({
-          status: 404,
+          status: 409,
           contentType: 'application/json',
-          body: JSON.stringify({ error: { code: 'NOT_FOUND', message: 'no row' } }),
+          body: JSON.stringify({ error: { code: 'CONFLICT', message: 'row exists' } }),
         });
       }
-      if (method === 'PUT') {
+      rows.set(body.id, body);
+      writes.push({ op: 'create', id: body.id, data: body.data });
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: body }),
+      });
+    }
+
+    if (path.startsWith('/api/user_data/')) {
+      const id = decodeURIComponent(path.split('/').pop());
+      if (method === 'GET') {
+        const stored = rows.get(id);
+        if (!stored) {
+          return route.fulfill({
+            status: 404,
+            contentType: 'application/json',
+            body: JSON.stringify({ error: { code: 'NOT_FOUND', message: 'no row' } }),
+          });
+        }
         return route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ data: { id: path.split('/').pop() } }),
+          body: JSON.stringify({ data: stored }),
+        });
+      }
+      if (method === 'PUT') {
+        if (!rows.has(id)) {
+          return route.fulfill({
+            status: 404,
+            contentType: 'application/json',
+            body: JSON.stringify({ error: { code: 'NOT_FOUND', message: 'no row to update' } }),
+          });
+        }
+        const body = JSON.parse(req.postData() || '{}');
+        const merged = { ...rows.get(id), ...body, id };
+        rows.set(id, merged);
+        writes.push({ op: 'update', id, data: body.data });
+        return route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: merged }),
         });
       }
     }
@@ -84,6 +126,11 @@ export async function mockBasedHappyPath(page) {
       body: JSON.stringify({ error: { code: 'UNMOCKED', message: `${method} ${path}` } }),
     });
   });
+
+  return {
+    getRows: () => Array.from(rows.values()),
+    getWrites: () => writes.slice(),
+  };
 }
 
 /**
