@@ -110,7 +110,9 @@ export async function seedSignedInSession(page) {
     ({ key, session }) => {
       try {
         window.localStorage.setItem(key, JSON.stringify(session));
-      } catch {}
+      } catch {
+        // Storage blocked — the test will surface the failure via a visible login screen.
+      }
     },
     {
       key: 'based.session',

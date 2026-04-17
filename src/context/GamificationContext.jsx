@@ -103,12 +103,27 @@ const defaultState = {
 export function GamificationProvider({ children }) {
   const [state, setState] = usePersistedState(STORAGE_KEY, defaultState);
 
-  // Reset today XP if it's a new day
+  // Reset today XP when the stored date is stale. Re-runs on every todayDate
+  // change so the hydration from the persisted store (which may land with an
+  // older date than the mount-time default) is handled correctly. A
+  // visibilitychange listener covers the case where the tab stays open past
+  // midnight — returning to the tab picks up the new day.
   useEffect(() => {
-    if (state.todayDate !== getToday()) {
-      setState(prev => ({ ...prev, todayXP: 0, todayDate: getToday() }));
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    const resetIfStale = () => {
+      setState(prev => {
+        if (!prev.todayDate) return prev;
+        const today = getToday();
+        if (prev.todayDate === today) return prev;
+        return { ...prev, todayXP: 0, todayDate: today };
+      });
+    };
+    resetIfStale();
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') resetIfStale();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [setState, state.todayDate]);
 
   // XP notification queue
   const [notifications, setNotifications] = useState([]);
