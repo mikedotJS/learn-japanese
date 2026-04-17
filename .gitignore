@@ -146,3 +146,9 @@ vite.config.ts.timestamp-*
 .claude/
 .agents/
 skills-lock.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
