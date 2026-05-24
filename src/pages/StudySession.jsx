@@ -337,16 +337,17 @@ function ProductionStep({ items, onNext }) {
   const normalize = (s) => s.trim().toLowerCase().replace(/[〜～\s]/g, '');
   const isCorrect = submitted && expectedAnswers.some(a => normalize(input) === normalize(a));
 
-  const handleSubmit = (e) => {
-    if (e) e.preventDefault();
-    if (submitted || !input.trim()) return;
-    setSubmitted(true);
-    const wasCorrect = expectedAnswers.some(a => normalize(input) === normalize(a));
-    if (wasCorrect) { sfxCorrect(); setScore(s => s + 1); }
-    else { sfxWrong(); }
-    setResults(prev => [...prev, { item, correct: wasCorrect }]);
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setInput(val);
 
-    if (wasCorrect) {
+    if (submitted) return;
+
+    if (val.trim() && expectedAnswers.some(a => normalize(val) === normalize(a))) {
+      setSubmitted(true);
+      sfxCorrect();
+      setScore(s => s + 1);
+      setResults(prev => [...prev, { item, correct: true }]);
       setTimeout(() => {
         if (idx + 1 >= shuffledItems.length) {
           setShowResult(true);
@@ -355,8 +356,18 @@ function ProductionStep({ items, onNext }) {
           setInput('');
           setSubmitted(false);
         }
-      }, 600);
+      }, 500);
     }
+  };
+
+  const handleSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (submitted || !input.trim()) return;
+    setSubmitted(true);
+    const wasCorrect = expectedAnswers.some(a => normalize(input) === normalize(a));
+    if (wasCorrect) { sfxCorrect(); setScore(s => s + 1); }
+    else { sfxWrong(); }
+    setResults(prev => [...prev, { item, correct: wasCorrect }]);
   };
 
   const next = () => {
@@ -427,7 +438,7 @@ function ProductionStep({ items, onNext }) {
             className={`production-input ${submitted ? (isCorrect ? 'correct' : 'wrong') : ''}`}
             type="text"
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleInputKeyDown}
             readOnly={submitted}
             autoFocus
