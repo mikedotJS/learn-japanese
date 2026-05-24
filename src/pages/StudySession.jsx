@@ -195,10 +195,14 @@ function QuizStep({ items, allItemsPool, onNext }) {
     if (isCorrect) { setScore(s => s + 1); sfxCorrect(); }
     else { sfxWrong(); }
     setResults(prev => [...prev, { item: current.item, correct: isCorrect }]);
-    // Drop focus so the next Enter keypress is handled by the step shortcut,
-    // not a re-click of the just-pressed option button.
     if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
+    }
+    if (isCorrect) {
+      setTimeout(() => {
+        setAnswered(null);
+        setCurrentIdx(i => i + 1);
+      }, 500);
     }
   };
 
@@ -284,7 +288,7 @@ function QuizStep({ items, allItemsPool, onNext }) {
           return <button key={i} className={cls} onClick={() => handleAnswer(opt)}>{opt}</button>;
         })}
       </div>
-      {answered !== null && (
+      {answered !== null && answered !== current.correct && (
         <button className="quiz-next-btn" onClick={next}>Suivant →</button>
       )}
     </div>
@@ -332,6 +336,29 @@ function ProductionStep({ items, onNext }) {
 
   const normalize = (s) => s.trim().toLowerCase().replace(/[〜～\s]/g, '');
   const isCorrect = submitted && expectedAnswers.some(a => normalize(input) === normalize(a));
+
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setInput(val);
+
+    if (submitted) return;
+
+    if (val.trim() && expectedAnswers.some(a => normalize(val) === normalize(a))) {
+      setSubmitted(true);
+      sfxCorrect();
+      setScore(s => s + 1);
+      setResults(prev => [...prev, { item, correct: true }]);
+      setTimeout(() => {
+        if (idx + 1 >= shuffledItems.length) {
+          setShowResult(true);
+        } else {
+          setIdx(i => i + 1);
+          setInput('');
+          setSubmitted(false);
+        }
+      }, 500);
+    }
+  };
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
@@ -411,7 +438,7 @@ function ProductionStep({ items, onNext }) {
             className={`production-input ${submitted ? (isCorrect ? 'correct' : 'wrong') : ''}`}
             type="text"
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleInputKeyDown}
             readOnly={submitted}
             autoFocus
@@ -431,7 +458,7 @@ function ProductionStep({ items, onNext }) {
         )}
       </div>
 
-      {submitted && (
+      {submitted && !isCorrect && (
         <button className="step-btn primary" onClick={next}>
           {idx + 1 >= shuffledItems.length ? 'Continuer →' : 'Suivant →'}
         </button>
